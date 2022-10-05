@@ -1,0 +1,2 @@
+lidar_camera_calibration
+-DCATKIN_DEVEL_PREFIX=/home/jimmy98629/calib_ws/devel -DCMAKE_INSTALL_PREFIX=/home/jimmy98629/calib_ws/install -G Unix Makefiles
