@@ -1,8 +1,0 @@
-prefix=/home/jimmy98629/calib_ws/install
-
-Name: lidar_camera_calibration
-Description: Description of lidar_camera_calibration
-Version: 1.0.0
-Cflags: 
-Libs: -L${prefix}/lib 
-Requires: 
