@@ -86,5 +86,17 @@ plt.imshow(disp)
 
 # # Display GUI
 # fig.canvas.mpl_connect('button_press_event', onclick)
-# plt.show()
+# plt.show()fv
+
+def extract_corner_points():
+    pass
+
+def extract_3d_points():
+    pass
+
+def calibrate():
+    pass
+
+if __name__ == '__main__':
+    pass
 
