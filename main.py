@@ -142,6 +142,10 @@ def calibrate(points_2d, points_3d):
     rotation_matrix = cv2.Rodrigues(rotation_matrix)[0]
     return rotation_matrix
 
+def projection():
+    
+    pass
+
 if __name__ == '__main__':
     path_lidar = "camera_LiDAR_calibration/lidar/0.npy"
     path_image = "camera_LiDAR_calibration/camera/37.png"
