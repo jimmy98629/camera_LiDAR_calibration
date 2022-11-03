@@ -7,6 +7,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib import image
 from mpl_toolkits.mplot3d import Axes3D
+import open3d as o3d
 # import PyQt5
 
 cam2pix = np.array([[1852.666, 0, 982.862],
@@ -65,7 +66,17 @@ def extract_corner_points(path):
     return corners
 
 def extract_3d_points(path):
-    lidar_data = np.load(path)
+
+    if(path[-3:]=="pcd"):
+        print("PCD")
+        pcd_load = o3d.io.read_point_cloud(path)
+        lidar_data = np.asarray(pcd_load.points)
+    elif(path[-3:]=="npy"):
+        print("NPY")
+        lidar_data = np.load(path)
+
+    # convert Open3D.o3d.geometry.PointCloud to numpy array
+    # xyz_load = np.asarray(pcd_load.points)
     inrange = np.where((lidar_data[:, 0] > -20) &
                        (lidar_data[:, 0] < 20) &
                        (np.abs(lidar_data[:, 1]) < 20) &
@@ -147,7 +158,8 @@ def projection():
     pass
 
 if __name__ == '__main__':
-    path_lidar = "camera_LiDAR_calibration/lidar/0.npy"
+    # path_lidar = "camera_LiDAR_calibration/lidar/0.npy"
+    path_lidar = "camera_LiDAR_calibration/calib_checker/lidar/00/lidar_227.pcd"
     path_image = "camera_LiDAR_calibration/camera/37.png"
     corner = extract_corner_points(path_image)
     print("선택된 2D 코너: ",corner)
