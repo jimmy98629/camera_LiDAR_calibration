@@ -75,11 +75,9 @@ def extract_3d_points(path):
         print("NPY")
         lidar_data = np.load(path)
 
-    # convert Open3D.o3d.geometry.PointCloud to numpy array
-    # xyz_load = np.asarray(pcd_load.points)
-    inrange = np.where((lidar_data[:, 0] > 0) &
-                       (lidar_data[:, 0] < 20) &
-                       (np.abs(lidar_data[:, 1]) < 20) &
+    inrange = np.where((lidar_data[:, 0] > 5) &
+                       (lidar_data[:, 0] < 7.5) &
+                       (np.abs(lidar_data[:, 1]) < 2) &
                        (lidar_data[:, 2] < 20))
     lidar_data = lidar_data[inrange[0]]
     print(lidar_data.shape)
@@ -93,12 +91,12 @@ def extract_3d_points(path):
     ax.set_title('Select 3D LiDAR Points')
     ax.set_axis_off()
     ax.set_facecolor((0, 0, 0))
-    ax.scatter(lidar_data[:, 0], lidar_data[:, 1], lidar_data[:, 2], c=colors, s=0.07, picker=5)
+    ax.scatter(lidar_data[:, 0], lidar_data[:, 1], lidar_data[:, 2], c=colors, s=2, picker=5)
 
     # Equalize display aspect ratio for all axes
     max_range = (np.array([lidar_data[:, 0].max() - lidar_data[:, 0].min(), 
         lidar_data[:, 1].max() - lidar_data[:, 1].min(),
-        lidar_data[:, 2].max() - lidar_data[:, 2].min()]).max() / 8.0)
+        lidar_data[:, 2].max() - lidar_data[:, 2].min()]).max() / 4.0)
     mid_x = (lidar_data[:, 0].max() + lidar_data[:, 0].min()) * 0.5
     mid_y = (lidar_data[:, 1].max() + lidar_data[:, 1].min()) * 0.5
     mid_z = (lidar_data[:, 2].max() + lidar_data[:, 2].min()) * 0.5
@@ -118,6 +116,7 @@ def extract_3d_points(path):
         # Display picked_3d point
         picked_3d.append((x[ind], y[ind], z[ind]))
         corner_3d.append((x[ind], y[ind], z[ind]))
+        print('IMG: %s', str(picked_3d[-1]))
         # rospy.loginfo('PCL: %s', str(picked_3d[-1]))
 
         if len(picked_3d) > 1:
@@ -156,21 +155,47 @@ def calibrate(points_2d, points_3d):
     # print("rotation matrix2: ",rotation_matrix[0])
     return rotation_matrix[0]
 
-def projection():
+def projection(points_2d, points_3d):
     
-    pass
+    points_3d = points_3d.reshape(-1, 9)[:, :4]
+    
+    # Filter points in front of camera
+    inrange = np.where((points_3d[:, 2] > 0) &
+                       (points_3d[:, 2] < 6) &
+                       (np.abs(points_3d[:, 0]) < 6) &
+                       (np.abs(points_3d[:, 1]) < 6))
+    max_intensity = np.max(points_3d[:, -1])
+    points_3d = points_3d[inrange[0]]
+
+    # Color map for the points
+    cmap = matplotlib.cm.get_cmap('jet')
+    colors = cmap(points_3d[:, -1] / max_intensity) * 255
+
+    # Project to 2D and filter points within image boundaries
+    points2D = [ point for point in points_3d[:, :3] ]
+    points2D = np.asarray(points2D)
+    inrange = np.where((points2D[:, 0] >= 0) &
+                       (points2D[:, 1] >= 0) &
+                       (points2D[:, 0] < img.shape[1]) &
+                       (points2D[:, 1] < img.shape[0]))
+    points2D = points2D[inrange[0]].round().astype('int')
+
+    # Draw the projected 2D points
+    for i in range(len(points2D)):
+        cv2.circle(img, tuple(points2D[i]), 2, tuple(colors[i]), -1)
 
 if __name__ == '__main__':
     # path_lidar = "camera_LiDAR_calibration/lidar/0.npy"
+    # path_lidar = "camera_LiDAR_calibration/pcl_corners.npy"
     path_lidar = "camera_LiDAR_calibration/calib_checker/lidar/01/lidar_0.pcd"
-    path_image = "camera_LiDAR_calibration/camera/37.png"
-    corner = extract_corner_points(path_image)
-    print("선택된 2D 코너: ",corner)
-    print("2D type: ",np.array(corner))
-    var = extract_3d_points(path_lidar)
-    print("선택된 3D 좌표: ",var)
+    path_image = "camera_LiDAR_calibration/calib_checker/image/01/image_0.jpg"
+    corner_2d = extract_corner_points(path_image)
+    print("선택된 2D 코너: ",corner_2d)
+    print("2D type: ",np.array(corner_2d))
+    corner_3d = extract_3d_points(path_lidar)
+    print("선택된 3D 좌표: ",corner_3d)
     # print("선택된 3d 크기: ", var.s)
-    rot = calibrate(corner, var)
+    rot = calibrate(corner_2d, corner_3d)
     print("rotation matrix: ", rot)
     
 
