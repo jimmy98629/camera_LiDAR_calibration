@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from matplotlib import image
 from mpl_toolkits.mplot3d import Axes3D
 import open3d as o3d
+# import image_geometry
 # import PyQt5
 
 cam2pix = np.array([[1852.666, 0, 982.862],
@@ -152,11 +153,38 @@ def calibrate(points_2d, points_3d):
     print("translation matrix", translation_matrix)
 
     rotation_matrix = cv2.Rodrigues(rotation_matrix)
-    # print("rotation matrix2: ",rotation_matrix[0])
-    return rotation_matrix[0]
+    rot2 = rotation_matrix[0]
+    print("rotation matrix2: ",rot2)
+    projection_mat = np.concatenate((rotation_matrix[0],translation_matrix),axis=1)
+    # return rotation_matrix[0]
+    return projection_mat
 
-def projection(points_2d, points_3d):
-    
+# def project3dTopixel(point3d):
+#     intrinsic_cam_matrix= np.array([[1852.666, 0, 982.862],
+
+#                     [0, 1866.610, 612.790],
+
+#                     [0, 0, 1]])
+#     point2d=[]
+#     point2d[0] = (intrinsic_cam_matrix[0][0]*point3d[0]+)/point3d[2] + intrinsic_cam_matrix[0][2]
+#     point2d[1] = (intrinsic_cam_matrix[1][1]*point3d[1]+)/point3d[2] + intrinsic_cam_matrix[1][2]
+#     # uv_rect.x = (fx()*xyz.x + Tx()) / xyz.z + cx()
+#     # uv_rect.y = (fy()*xyz.y + Ty()) / xyz.z + cy()
+#     # return uv_rect
+
+def projection(projection_matrix, intrinsic_matrix,path_lidar,path_img):
+    proj = intrinsic_matrix.dot(projection_matrix)
+    img = image.imread(path_img)
+
+    if(path_lidar[-3:]=="pcd"):
+        print("PCD")
+        pcd_load = o3d.io.read_point_cloud(path_lidar)
+        lidar_data = np.asarray(pcd_load.points)
+    elif(path_lidar[-3:]=="npy"):
+        print("NPY")
+        lidar_data = np.load(path_lidar)
+
+    points_3d = lidar_data
     points_3d = points_3d.reshape(-1, 9)[:, :4]
     
     # Filter points in front of camera
@@ -167,13 +195,22 @@ def projection(points_2d, points_3d):
     max_intensity = np.max(points_3d[:, -1])
     points_3d = points_3d[inrange[0]]
 
-    # Color map for the points
+    # # Color map for the points
     cmap = matplotlib.cm.get_cmap('jet')
     colors = cmap(points_3d[:, -1] / max_intensity) * 255
 
+    print("모양 앞에 mat: {0}".format(proj.shape))
+    print(points_3d[:, :3])
+    for p in points_3d[:, :3]:
+        p = np.append(p, 1)
+        print("뒤에 mat: {0}".format(p.shape))
+    # points_3d = [np.append(p,1) for p in points_3d[:, :3]]
+    # print(points_3d)
     # Project to 2D and filter points within image boundaries
-    points2D = [ point for point in points_3d[:, :3] ]
+    points2D = [ proj.dot(np.append(point,1)) for point in points_3d[:, :3] ]
     points2D = np.asarray(points2D)
+    print(points2D)
+    print(points2D.shape)
     inrange = np.where((points2D[:, 0] >= 0) &
                        (points2D[:, 1] >= 0) &
                        (points2D[:, 0] < img.shape[1]) &
@@ -183,6 +220,18 @@ def projection(points_2d, points_3d):
     # Draw the projected 2D points
     for i in range(len(points2D)):
         cv2.circle(img, tuple(points2D[i]), 2, tuple(colors[i]), -1)
+    
+    cv2.imshow('image',img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+    disp = cv2.cvtColor(img.copy(),cv2.COLOR_BGR2RGB)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.set_title('Select 2D Image Points')
+    ax.set_axis_off()
+    ax.imshow(disp)
 
 if __name__ == '__main__':
     # path_lidar = "camera_LiDAR_calibration/lidar/0.npy"
@@ -195,7 +244,10 @@ if __name__ == '__main__':
     corner_3d = extract_3d_points(path_lidar)
     print("선택된 3D 좌표: ",corner_3d)
     # print("선택된 3d 크기: ", var.s)
-    rot = calibrate(corner_2d, corner_3d)
-    print("rotation matrix: ", rot)
+    proj = calibrate(corner_2d, corner_3d)
+    # print("rotation matrix: ", rot)
+    print("projection matrix: ",proj)
+    a = projection(proj,cam2pix,path_lidar,path_image)
+    
     
 
