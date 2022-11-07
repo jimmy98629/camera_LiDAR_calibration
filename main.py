@@ -247,7 +247,7 @@ if __name__ == '__main__':
     proj = calibrate(corner_2d, corner_3d)
     # print("rotation matrix: ", rot)
     print("projection matrix: ",proj)
-    a = projection(proj,cam2pix,path_lidar,path_image)
+    # a = projection(proj,cam2pix,path_lidar,path_image)
     
     
 
