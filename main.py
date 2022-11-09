@@ -208,8 +208,8 @@ def projection(projection_matrix, intrinsic_matrix,path_lidar,path_img):
     # Project to 2D and filter points within image boundaries
     points2D = [ proj.dot(np.append(point,1)) for point in points_3d[:, :3] ]
     points2D = np.asarray(points2D)
-    
-    # print("변경전:",points2D)
+
+     # print("변경전:",points2D)
     for i in range(points2D.shape[0]):
         points2D[i,:] = points2D[i,:]/points2D[i,2]
     print(points2D)
