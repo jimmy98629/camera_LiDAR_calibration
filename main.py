@@ -185,7 +185,6 @@ def projection(projection_matrix, intrinsic_matrix,path_lidar,path_img):
         lidar_data = np.load(path_lidar)
 
     points_3d = lidar_data
-    points_3d = points_3d.reshape(-1, 9)[:, :4]
     
     # Filter points in front of camera
     inrange = np.where((points_3d[:, 2] > 0) &
@@ -199,16 +198,20 @@ def projection(projection_matrix, intrinsic_matrix,path_lidar,path_img):
     cmap = matplotlib.cm.get_cmap('jet')
     colors = cmap(points_3d[:, -1] / max_intensity) * 255
 
-    print("모양 앞에 mat: {0}".format(proj.shape))
-    print(points_3d[:, :3])
+    # print("모양 앞에 mat: {0}".format(proj.shape))
+    # print(points_3d[:, :3])
     for p in points_3d[:, :3]:
         p = np.append(p, 1)
-        print("뒤에 mat: {0}".format(p.shape))
+        # print("뒤에 mat: {0}".format(p.shape))
     # points_3d = [np.append(p,1) for p in points_3d[:, :3]]
     # print(points_3d)
     # Project to 2D and filter points within image boundaries
     points2D = [ proj.dot(np.append(point,1)) for point in points_3d[:, :3] ]
     points2D = np.asarray(points2D)
+    
+    # print("변경전:",points2D)
+    for i in range(points2D.shape[0]):
+        points2D[i,:] = points2D[i,:]/points2D[i,2]
     print(points2D)
     print(points2D.shape)
     inrange = np.where((points2D[:, 0] >= 0) &
@@ -217,6 +220,9 @@ def projection(projection_matrix, intrinsic_matrix,path_lidar,path_img):
                        (points2D[:, 1] < img.shape[0]))
     points2D = points2D[inrange[0]].round().astype('int')
 
+    print("투사된 point 2d: ",points2D)
+    points2D = points2D[:,:2]
+    print("변경된 투사된 point 2d: ",points2D)
     # Draw the projected 2D points
     for i in range(len(points2D)):
         cv2.circle(img, tuple(points2D[i]), 2, tuple(colors[i]), -1)
@@ -247,7 +253,7 @@ if __name__ == '__main__':
     proj = calibrate(corner_2d, corner_3d)
     # print("rotation matrix: ", rot)
     print("projection matrix: ",proj)
-    # a = projection(proj,cam2pix,path_lidar,path_image)
+    a = projection(proj,cam2pix,path_lidar,path_image)
     
     
 
