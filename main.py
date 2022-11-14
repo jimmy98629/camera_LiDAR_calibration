@@ -17,7 +17,7 @@ cam2pix = np.array([[1852.666, 0, 982.862],
 
                     [0, 0, 1]])
 
-ex_cam_params = np.array([[0,0,0,0.11],
+ex_cam_params = np.array([[0,0,0,0.77],
                           [0,0,0,-0.16],
                           [0,0,0,-0.48]])
 
@@ -138,17 +138,16 @@ def extract_3d_points(path):
 def calibrate(points_2d, points_3d):
     intrinsic_cam_matrix= np.array([[1852.666, 0, 982.862],
 
-                    [0, 1866.610, 612.790],
+                                    [0, 1866.610, 612.790],
 
-                    [0, 0, 1]])
+                                    [0, 0, 1]])
     
     dist_coeff = np.array([[0.0,0.0,0.0,0.0,0.0]])
     points_2d = np.array(points_2d)
     points_3d = np.array(points_3d)
     print(points_2d.shape)
     print(points_3d.shape)
-    success, rotation_matrix, translation_matrix, inlier = cv2.solvePnPRansac(points_3d,
-    points_2d, intrinsic_cam_matrix, dist_coeff, flags=cv2.SOLVEPNP_ITERATIVE)
+    success, rotation_matrix, translation_matrix, inlier = cv2.solvePnPRansac(points_3d, points_2d, intrinsic_cam_matrix, dist_coeff, flags=cv2.SOLVEPNP_ITERATIVE)
     print("rotation matrix",rotation_matrix)
     print("translation matrix", translation_matrix)
 
@@ -187,10 +186,11 @@ def projection(projection_matrix, intrinsic_matrix,path_lidar,path_img):
     points_3d = lidar_data
     
     # Filter points in front of camera
-    inrange = np.where((points_3d[:, 2] > 0) &
-                       (points_3d[:, 2] < 6) &
-                       (np.abs(points_3d[:, 0]) < 6) &
-                       (np.abs(points_3d[:, 1]) < 6))
+    inrange = np.where((points_3d[:, 2] > -5) &
+                       (points_3d[:, 2] < 7) &
+                       (points_3d[:, 0] < 7) &
+                       (points_3d[:, 0] > 0) &
+                       (np.abs(points_3d[:, 1]) < 5))
     max_intensity = np.max(points_3d[:, -1])
     points_3d = points_3d[inrange[0]]
 
@@ -242,8 +242,8 @@ def projection(projection_matrix, intrinsic_matrix,path_lidar,path_img):
 if __name__ == '__main__':
     # path_lidar = "camera_LiDAR_calibration/lidar/0.npy"
     # path_lidar = "camera_LiDAR_calibration/pcl_corners.npy"
-    path_lidar = "camera_LiDAR_calibration/calib_checker/lidar/01/lidar_0.pcd"
-    path_image = "camera_LiDAR_calibration/calib_checker/image/01/image_0.jpg"
+    path_lidar = "calib_checker/lidar/01/lidar_0.pcd"
+    path_image = "calib_checker/image/01/image_0.jpg"
     corner_2d = extract_corner_points(path_image)
     print("선택된 2D 코너: ",corner_2d)
     print("2D type: ",np.array(corner_2d))
