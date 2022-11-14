@@ -240,7 +240,7 @@ def projection(projection_matrix, intrinsic_matrix,path_lidar,path_img):
 
 if __name__ == '__main__':
     
-    for i in range(3):
+    for i in range(50):
         path_lidar = "camera_LiDAR_calibration/calib_checker/lidar/01/lidar_{}.pcd".format(i)
         path_image = "camera_LiDAR_calibration/calib_checker/image/01/image_{}.jpg".format(i)
         corner_2d = extract_corner_points(path_image)
@@ -254,7 +254,7 @@ if __name__ == '__main__':
         print("---------------projection matrix{}: ".format(i),proj)
         np.save("./projection_matrix{}".format(i), proj)
     
-    for i in range(3):
+    for i in range(50):
         lidar_data = np.load("projection_matrix{}.npy".format(i))
         print("projection matrix{}: ".format(i),lidar_data)
     
