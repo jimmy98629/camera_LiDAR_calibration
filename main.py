@@ -17,7 +17,7 @@ cam2pix = np.array([[1852.666, 0, 982.862],
 
                     [0, 0, 1]])
 
-ex_cam_params = np.array([[0,0,0,0.11],
+ex_cam_params = np.array([[0,0,0,0.77],
                           [0,0,0,-0.16],
                           [0,0,0,-0.48]])
 
@@ -138,17 +138,16 @@ def extract_3d_points(path):
 def calibrate(points_2d, points_3d):
     intrinsic_cam_matrix= np.array([[1852.666, 0, 982.862],
 
-                    [0, 1866.610, 612.790],
+                                    [0, 1866.610, 612.790],
 
-                    [0, 0, 1]])
+                                    [0, 0, 1]])
     
     dist_coeff = np.array([[0.0,0.0,0.0,0.0,0.0]])
     points_2d = np.array(points_2d)
     points_3d = np.array(points_3d)
     print(points_2d.shape)
     print(points_3d.shape)
-    success, rotation_matrix, translation_matrix, inlier = cv2.solvePnPRansac(points_3d,
-    points_2d, intrinsic_cam_matrix, dist_coeff, flags=cv2.SOLVEPNP_ITERATIVE)
+    success, rotation_matrix, translation_matrix, inlier = cv2.solvePnPRansac(points_3d, points_2d, intrinsic_cam_matrix, dist_coeff, flags=cv2.SOLVEPNP_ITERATIVE)
     print("rotation matrix",rotation_matrix)
     print("translation matrix", translation_matrix)
 
@@ -187,9 +186,9 @@ def projection(projection_matrix, intrinsic_matrix,path_lidar,path_img):
     points_3d = lidar_data
     
     # Filter points in front of camera
-    inrange = np.where((points_3d[:, 2] > -6) &
+    inrange = np.where((points_3d[:, 2] > 0) &
                        (points_3d[:, 2] < 6) &
-                       (points_3d[:, 0] < 7) & (points_3d[:, 0] > 0) &
+                       (np.abs(points_3d[:, 0]) < 6) &
                        (np.abs(points_3d[:, 1]) < 6))
     max_intensity = np.max(points_3d[:, -1])
     points_3d = points_3d[inrange[0]]
@@ -208,21 +207,21 @@ def projection(projection_matrix, intrinsic_matrix,path_lidar,path_img):
     # Project to 2D and filter points within image boundaries
     points2D = [ proj.dot(np.append(point,1)) for point in points_3d[:, :3] ]
     points2D = np.asarray(points2D)
-    
-    # print("변경전:",points2D)
+
+     # print("변경전:",points2D)
     for i in range(points2D.shape[0]):
         points2D[i,:] = points2D[i,:]/points2D[i,2]
-    print(points2D)
-    print(points2D.shape)
+    # print(points2D)
+    # print(points2D.shape)
     inrange = np.where((points2D[:, 0] >= 0) &
                        (points2D[:, 1] >= 0) &
                        (points2D[:, 0] < img.shape[1]) &
                        (points2D[:, 1] < img.shape[0]))
     points2D = points2D[inrange[0]].round().astype('int')
 
-    print("투사된 point 2d: ",points2D)
+    # print("투사된 point 2d: ",points2D)
     points2D = points2D[:,:2]
-    print("변경된 투사된 point 2d: ",points2D)
+    # print("변경된 투사된 point 2d: ",points2D)
     # Draw the projected 2D points
     for i in range(len(points2D)):
         cv2.circle(img, tuple(points2D[i]), 2, tuple(colors[i]), -1)
@@ -240,20 +239,23 @@ def projection(projection_matrix, intrinsic_matrix,path_lidar,path_img):
     ax.imshow(disp)
 
 if __name__ == '__main__':
-    # path_lidar = "camera_LiDAR_calibration/lidar/0.npy"
-    # path_lidar = "camera_LiDAR_calibration/pcl_corners.npy"
-    path_lidar = "camera_LiDAR_calibration/calib_checker/lidar/01/lidar_0.pcd"
-    path_image = "camera_LiDAR_calibration/calib_checker/image/01/image_0.jpg"
-    corner_2d = extract_corner_points(path_image)
-    print("선택된 2D 코너: ",corner_2d)
-    print("2D type: ",np.array(corner_2d))
-    corner_3d = extract_3d_points(path_lidar)
-    print("선택된 3D 좌표: ",corner_3d)
-    # print("선택된 3d 크기: ", var.s)
-    proj = calibrate(corner_2d, corner_3d)
-    # print("rotation matrix: ", rot)
-    print("projection matrix: ",proj)
-    a = projection(proj,cam2pix,path_lidar,path_image)
     
+    for i in range(3):
+        path_lidar = "camera_LiDAR_calibration/calib_checker/lidar/01/lidar_{}.pcd".format(i)
+        path_image = "camera_LiDAR_calibration/calib_checker/image/01/image_{}.jpg".format(i)
+        corner_2d = extract_corner_points(path_image)
+        print("선택된 2D 코너: ",corner_2d)
+        print("2D type: ",np.array(corner_2d))
+        corner_3d = extract_3d_points(path_lidar)
+        print("선택된 3D 좌표: ",corner_3d)
+        # print("선택된 3d 크기: ", var.s)
+        proj = calibrate(corner_2d, corner_3d)
+        # print("rotation matrix: ", rot)
+        print("---------------projection matrix{}: ".format(i),proj)
+        np.save("./projection_matrix{}".format(i), proj)
+    
+    for i in range(3):
+        lidar_data = np.load("projection_matrix{}.npy".format(i))
+        print("projection matrix{}: ".format(i),lidar_data)
     
 
