@@ -186,10 +186,11 @@ def projection(projection_matrix, intrinsic_matrix,path_lidar,path_img):
     points_3d = lidar_data
     
     # Filter points in front of camera
-    inrange = np.where((points_3d[:, 2] > 0) &
-                       (points_3d[:, 2] < 6) &
-                       (np.abs(points_3d[:, 0]) < 6) &
-                       (np.abs(points_3d[:, 1]) < 6))
+    inrange = np.where((points_3d[:, 2] > -5) &
+                       (points_3d[:, 2] < 7) &
+                       (points_3d[:, 0] < 7) &
+                       (points_3d[:, 0] > 0) &
+                       (np.abs(points_3d[:, 1]) < 5))
     max_intensity = np.max(points_3d[:, -1])
     points_3d = points_3d[inrange[0]]
 
@@ -241,8 +242,8 @@ def projection(projection_matrix, intrinsic_matrix,path_lidar,path_img):
 if __name__ == '__main__':
     
     for i in range(50):
-        path_lidar = "camera_LiDAR_calibration/calib_checker/lidar/01/lidar_{}.pcd".format(i)
-        path_image = "camera_LiDAR_calibration/calib_checker/image/01/image_{}.jpg".format(i)
+        path_lidar = "calib_checker/lidar/01/lidar_{}.pcd".format(i)
+        path_image = "calib_checker/image/01/image_{}.jpg".format(i)
         corner_2d = extract_corner_points(path_image)
         print("선택된 2D 코너: ",corner_2d)
         print("2D type: ",np.array(corner_2d))
@@ -258,4 +259,3 @@ if __name__ == '__main__':
         lidar_data = np.load("projection_matrix{}.npy".format(i))
         print("projection matrix{}: ".format(i),lidar_data)
     
-
