@@ -187,9 +187,9 @@ def projection(projection_matrix, intrinsic_matrix,path_lidar,path_img):
     points_3d = lidar_data
     
     # Filter points in front of camera
-    inrange = np.where((points_3d[:, 2] > 0) &
+    inrange = np.where((points_3d[:, 2] > -6) &
                        (points_3d[:, 2] < 6) &
-                       (np.abs(points_3d[:, 0]) < 6) &
+                       (points_3d[:, 0] < 7) & (points_3d[:, 0] > 0) &
                        (np.abs(points_3d[:, 1]) < 6))
     max_intensity = np.max(points_3d[:, -1])
     points_3d = points_3d[inrange[0]]
