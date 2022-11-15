@@ -242,8 +242,8 @@ def projection(projection_matrix, intrinsic_matrix,path_lidar,path_img):
 if __name__ == '__main__':
     
     for i in range(50):
-        path_lidar = "calib_checker/lidar/01/lidar_{}.pcd".format(i)
-        path_image = "calib_checker/image/01/image_{}.jpg".format(i)
+        path_lidar = "calib_checker/lidar/02/lidar_{}.pcd".format(i)
+        path_image = "calib_checker/image/02/image_{}.jpg".format(i)
         corner_2d = extract_corner_points(path_image)
         print("선택된 2D 코너: ",corner_2d)
         print("2D type: ",np.array(corner_2d))
@@ -258,4 +258,3 @@ if __name__ == '__main__':
     for i in range(50):
         lidar_data = np.load("projection_matrix{}.npy".format(i))
         print("projection matrix{}: ".format(i),lidar_data)
-    
