@@ -275,3 +275,14 @@ if __name__ == '__main__':
     np.save("./projection_matrix/02/projection_matrix{}.npy".format(file_number), proj)
     lidar_data = np.load("projection_matrix/02/projection_matrix{}.npy".format(file_number))
     print("projection matrix1: ", lidar_data)
+
+    # for i in range(42):
+    #     path_lidar = "camera_LiDAR_calibration/calib_checker/lidar/01/lidar_{}.pcd".format(i)
+    #     path_image = "camera_LiDAR_calibration/calib_checker/image/01/image_{}.jpg".format(i)
+    #     proj = np.load("camera_LiDAR_calibration/projection_matrix/01/projection_matrix{}.npy".format(i))
+    #     a = projection(proj, cam2pix, path_lidar, path_image)
+    #     print("projection matrix{}: ".format(i), proj)
+    
+    # for i in range(42):
+    #     proj = np.load("camera_LiDAR_calibration/projection_matrix/01/projection_matrix{}.npy".format(i))
+    #     print("projection matrix{}: ".format(i), proj)
