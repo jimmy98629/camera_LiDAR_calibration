@@ -10,15 +10,26 @@ import open3d as o3d
 # import image_geometry
 # import PyQt5
 
-cam2pix = np.array([[1852.666, 0, 982.862],
+# cam2pix = np.array([[1852.666, 0, 982.862],
 
-                    [0, 1866.610, 612.790],
+#                     [0, 1866.610, 612.790],
 
-                    [0, 0, 1]])
+#                     [0, 0, 1]])
+
+# 시뮬레이션용 cam2pix matrix
+cam2pix = np.array([[831.3844, 0.0, 480],
+                    [0.0, 890.07074, 270.0],
+                    [0.0, 0.0, 1.0]])
 
 ex_cam_params = np.array([[0,0,0,0.77],
                           [0,0,0,-0.16],
                           [0,0,0,-0.48]])
+
+# 시뮬레이션용 reference matrix
+# R|t:[[ 0.  -1.   0.   0. ]
+#  [ 0.   0.  -1.   0. ]
+#  [ 1.   0.   0.  -0.5]
+#  [ 0.   0.   0.   1. ]]
 
 # 2. 외부 파라미터
 # 카메라 위치 = 라이다 위치 + [0.11 -0.16 -0.48]
@@ -79,7 +90,7 @@ def extract_3d_points(path):
         lidar_data = np.fromfile(path,dtype=np.float32).reshape(-1,4)
 
     inrange = np.where((lidar_data[:, 0] > 20) &
-                       (lidar_data[:, 0] < 80) &
+                       (lidar_data[:, 0] < 50) &
                        (np.abs(lidar_data[:, 1]) < 3) &
                        (lidar_data[:, 2] < 20))
     lidar_data = lidar_data[inrange[0]]
@@ -244,11 +255,36 @@ def projection(projection_matrix, intrinsic_matrix,path_lidar,path_img):
     ax.set_axis_off()
     ax.imshow(disp)
 
+def read_cali(calib_file):
+    f = open(calib_file,'r')
+    calib = f.readlines()
+    P2 = calib[2].split(' ')[1:]
+    P2 = np.array(P2, dtype=np.float32).reshape(-1,4)
+
+    R0 = calib[4].split(' ')[1:]
+    R0 = np.array(R0, dtype=np.float32).reshape(3, 3)
+    R0_ext = np.eye(4, dtype=np.float32)
+    R0_ext[:3, :3] = R0
+
+    Tr = calib[5].split(' ')[1:]
+    Tr = np.array(Tr, dtype=np.float32).reshape(3, 4)
+
+    velo_to_cam = np.eye(4, dtype=np.float32)
+    velo_to_cam[:3, :4] = Tr
+
+    cam_to_pix = np.matmul(P2, R0_ext)
+
+    return cam_to_pix, velo_to_cam
+
 if __name__ == '__main__':
     
     path_image = "C:/Users/syb62/Downloads/urp_calib_vtd/urp_calib_vtd/img/000000.png"
     path_lidar = "C:/Users/syb62/Downloads/urp_calib_vtd/urp_calib_vtd/lidar/000000.bin"
+    path_calib = "C:/Users/syb62/Downloads/urp_calib_vtd/urp_calib_vtd/calib/000000.txt"
+    # path_calib = "C:/Users/syb62/Downloads/test_set/test_set/calib/000000.txt"
 
+    cam_mat, velo_mat = read_cali(path_calib)
+    print("cam_mat:{}\nR|t:{}".format(cam_mat, velo_mat))
     corner_2d = extract_corner_points(path_image)
     print("선택된 2D 코너: ",corner_2d)
     print("2D type: ",np.array(corner_2d))
