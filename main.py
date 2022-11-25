@@ -91,8 +91,8 @@ def extract_3d_points(path):
 
     inrange = np.where((lidar_data[:, 0] > 20) &
                        (lidar_data[:, 0] < 50) &
-                       (np.abs(lidar_data[:, 1]) < 3) &
-                       (lidar_data[:, 2] < 20))
+                       (np.abs(lidar_data[:, 1]) < 10) &
+                       (lidar_data[:, 2] < 50))
     lidar_data = lidar_data[inrange[0]]
     # print(lidar_data.shape)
     # print(inrange)
@@ -149,11 +149,9 @@ def extract_3d_points(path):
 
 
 def calibrate(points_2d, points_3d):
-    intrinsic_cam_matrix= np.array([[1852.666, 0, 982.862],
-
-                                    [0, 1866.610, 612.790],
-
-                                    [0, 0, 1]])
+    intrinsic_cam_matrix= np.array([[831.3844, 0.0, 480],
+                    [0.0, 890.07074, 270.0],
+                    [0.0, 0.0, 1.0]])
     
     dist_coeff = np.array([[0.0,0.0,0.0,0.0,0.0]])
     points_2d = np.array(points_2d)
@@ -203,9 +201,9 @@ def projection(projection_matrix, intrinsic_matrix,path_lidar,path_img):
     
     # Filter points in front of camera
     inrange = np.where((points_3d[:, 2] > -5) &
-                       (points_3d[:, 2] < 7) &
-                       (points_3d[:, 0] < 7) &
-                       (points_3d[:, 0] > 0) &
+                       (points_3d[:, 2] < 9) &
+                       (points_3d[:, 0] < 50) &
+                       (points_3d[:, 0] > 20) &
                        (np.abs(points_3d[:, 1]) < 5))
     max_intensity = np.max(points_3d[:, -1])
     points_3d = points_3d[inrange[0]]
@@ -278,9 +276,9 @@ def read_cali(calib_file):
 
 if __name__ == '__main__':
     
-    path_image = "C:/Users/syb62/Downloads/urp_calib_vtd/urp_calib_vtd/img/000000.png"
-    path_lidar = "C:/Users/syb62/Downloads/urp_calib_vtd/urp_calib_vtd/lidar/000000.bin"
-    path_calib = "C:/Users/syb62/Downloads/urp_calib_vtd/urp_calib_vtd/calib/000000.txt"
+    path_image = "urp_calib_vtd/img/000000.png"
+    path_lidar = "urp_calib_vtd/lidar/000000.bin"
+    path_calib = "urp_calib_vtd/calib/000000.txt"
     # path_calib = "C:/Users/syb62/Downloads/test_set/test_set/calib/000000.txt"
 
     cam_mat, velo_mat = read_cali(path_calib)
