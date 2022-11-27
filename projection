@@ -1,0 +1,53 @@
+12, 16, 18, 20, 21, 23번 projection 애매함 (LiDAR 데이터 빈약)
+
+원래 projection 범위: inrange = np.where((points_3d[:, 2] > -4) &
+                       (points_3d[:, 2] < 9) &
+                       (points_3d[:, 0] < 50) &
+                       (points_3d[:, 0] > 25) &
+                       (points_3d[:, 1] > -6) &
+                       (points_3d[:, 1] < 12))
+                       
+파일 000004 -> extract_3D_points 범위 조정: (lidar_data[:, 1] > -20) & (lidar_data[:, 1] < 0)
+		projection 범위 조정: inrange = np.where((points_3d[:, 2] > -10) &
+                       (points_3d[:, 2] < 15) &
+                       (points_3d[:, 0] < 70) &
+                       (points_3d[:, 0] > 15) &
+                       (points_3d[:, 1] > -20) &
+                       (points_3d[:, 1] < 20))
+
+파일 000005 -> projection 범위 조정: inrange = np.where((points_3d[:, 2] > -5) &
+                       (points_3d[:, 2] < 10) &
+                       (points_3d[:, 0] < 70) &
+                       (points_3d[:, 0] > 15) &
+                       (points_3d[:, 1] > -25) &
+                       (points_3d[:, 1] < 25))
+                       
+파일 000006 -> projection 범위 조정: inrange = np.where((points_3d[:, 2] > -10) &
+                       (points_3d[:, 2] < 5) &
+                       (points_3d[:, 0] < 60) &
+                       (points_3d[:, 0] > 15) &
+                       (points_3d[:, 1] > -20) &
+                       (points_3d[:, 1] < 40))
+                       
+파일 000007 -> projection 범위 조정: inrange = np.where((points_3d[:, 2] > -5) &
+                       (points_3d[:, 2] < 10) &
+                       (points_3d[:, 0] < 60) &
+                       (points_3d[:, 0] > 15) &
+                       (points_3d[:, 1] > -20) &
+                       (points_3d[:, 1] < 30))
+                       
+파일 000008 - 15 -> projection 범위 조정: inrange = np.where((points_3d[:, 2] > -5) &
+                       (points_3d[:, 2] < 10) &
+                       (points_3d[:, 0] < 50) &
+                       (points_3d[:, 0] > 10) &
+                       (points_3d[:, 1] > -20) &
+                       (points_3d[:, 1] < 20))
+                       
+파일 000016 -> projection 범위 조정: inrange = np.where((points_3d[:, 2] > -5) &
+                       (points_3d[:, 2] < 10) &
+                       (points_3d[:, 0] < 50) &
+                       (points_3d[:, 0] > 10) &
+                       (points_3d[:, 1] > -10) &
+                       (points_3d[:, 1] < 20))
+                       
+파일 000016 -> projection 범위 조정: 
