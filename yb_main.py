@@ -267,34 +267,73 @@ if __name__ == '__main__':
     for i in range(51):
         # 경로 너꺼에 맞게 변경하면 될듯?
         if(len(str(i))==1): # 00000뒤에 한자리 수 파일일떄
-            path_image = "C:/Users/syb62/Desktop/URP/urp_calib_vtd/urp_calib_vtd/img/00000{}.png".format(i)
-            path_lidar = "C:/Users/syb62/Desktop/URP/urp_calib_vtd/urp_calib_vtd/lidar/00000{}.bin".format(i)
-            path_calib = "C:/Users/syb62/Desktop/URP/urp_calib_vtd/urp_calib_vtd/calib/00000{}.txt".format(i)
+            path_image = "C:/Users/syb62/Desktop/URP/test_set/test_set/img/00000{}.png".format(i)
+            path_lidar = "C:/Users/syb62/Desktop/URP/test_set/test_set/lidar/00000{}.bin".format(i)
+            path_calib = "C:/Users/syb62/Desktop/URP/test_set/test_set/calib/00000{}.txt".format(i)
         elif(len(str(i))==2): # 0000뒤에 두자리 수 파일일떄
-            path_image = "C:/Users/syb62/Desktop/URP/urp_calib_vtd/urp_calib_vtd/img/0000{}.png".format(i)
-            path_lidar = "C:/Users/syb62/Desktop/URP/urp_calib_vtd/urp_calib_vtd/lidar/0000{}.bin".format(i)
-            path_calib = "C:/Users/syb62/Desktop/URP/urp_calib_vtd/urp_calib_vtd/calib/0000{}.txt".format(i)
+            path_image = "C:/Users/syb62/Desktop/URP/test_set/test_set/img/0000{}.png".format(i)
+            path_lidar = "C:/Users/syb62/Desktop/URP/test_set/test_set/lidar/0000{}.bin".format(i)
+            path_calib = "C:/Users/syb62/Desktop/URP/test_set/test_set/calib/0000{}.txt".format(i)
         # path_calib = "C:/Users/syb62/Downloads/test_set/test_set/calib/000000.txt"
         try:
             print("----------------{}번쨰 img, lidar------------".format(i))
-            cam_mat, velo_mat = read_cali(path_calib)
-            print("cam_mat:{}\nR|t:{}".format(cam_mat, velo_mat))
-            corner_2d = extract_corner_points(path_image)
-            print("선택된 2D 코너: ",corner_2d)
-            print("2D type: ",np.array(corner_2d))
-            corner_3d = extract_3d_points(path_lidar)
-            print("선택된 3D 좌표: ",corner_3d)
+            # cam_mat, velo_mat = read_cali(path_calib)
+            # print("cam_mat:{}\nR|t:{}".format(cam_mat, velo_mat))
+            # corner_2d = extract_corner_points(path_image)
+            # print("선택된 2D 코너: ",corner_2d)
+            # print("2D type: ",np.array(corner_2d))
+            # corner_3d = extract_3d_points(path_lidar)
+            # print("선택된 3D 좌표: ",corner_3d)
             # print("선택된 3d 크기: ", var.s)
-            proj = calibrate(corner_2d, corner_3d)
+            # proj = calibrate(corner_2d, corner_3d)
+            # proj = np.array([[ 0.0, -1.0, 0.0, 0.0 ],
+            #                  [ 0.0, 0.0, -1.0, 0.0 ],
+            #                  [ 1.0, 0.0, 0.0, -0.5]])
+
+            proj = np.array([[ -4.62379376e-01, -8.86297868e-01, -2.6262600e-02, 1.27436079e+01 ],
+                             [ 4.74655078e-02, 4.83589980e-03, -9.98861171e-01, -1.30806218e+00 ],
+                             [ 8.85415530e-01, -4.63090383e-01, 3.98326015e-02, 1.89569054e+00]])
             # print("rotation matrix: ", rot)
             # print("---------------projection matrix{}: ".format(i),proj)
             print("---------------projection matrix: ",proj)
             a = projection(proj, cam2pix, path_lidar, path_image)
             print(a)
             # 동준아 너가 원하는 경로로 지정하고 저장하면 될듯해
-            np.save("urp_calib_proj/projection_matrix{}".format(i), proj)
+            # np.save("urp_calib_proj/projection_matrix{}".format(i), proj)
         except:
             pass
+
+    # for i in range(51):
+    #     # 경로 너꺼에 맞게 변경하면 될듯?
+    #     if(len(str(i))==1): # 00000뒤에 한자리 수 파일일떄
+    #         path_image = "C:/Users/syb62/Desktop/URP/urp_calib_vtd/urp_calib_vtd/img/00000{}.png".format(i)
+    #         path_lidar = "C:/Users/syb62/Desktop/URP/urp_calib_vtd/urp_calib_vtd/lidar/00000{}.bin".format(i)
+    #         path_calib = "C:/Users/syb62/Desktop/URP/urp_calib_vtd/urp_calib_vtd/calib/00000{}.txt".format(i)
+    #     elif(len(str(i))==2): # 0000뒤에 두자리 수 파일일떄
+    #         path_image = "C:/Users/syb62/Desktop/URP/urp_calib_vtd/urp_calib_vtd/img/0000{}.png".format(i)
+    #         path_lidar = "C:/Users/syb62/Desktop/URP/urp_calib_vtd/urp_calib_vtd/lidar/0000{}.bin".format(i)
+    #         path_calib = "C:/Users/syb62/Desktop/URP/urp_calib_vtd/urp_calib_vtd/calib/0000{}.txt".format(i)
+    #     # path_calib = "C:/Users/syb62/Downloads/test_set/test_set/calib/000000.txt"
+    #     try:
+    #         print("----------------{}번쨰 img, lidar------------".format(i))
+    #         cam_mat, velo_mat = read_cali(path_calib)
+    #         print("cam_mat:{}\nR|t:{}".format(cam_mat, velo_mat))
+    #         corner_2d = extract_corner_points(path_image)
+    #         print("선택된 2D 코너: ",corner_2d)
+    #         print("2D type: ",np.array(corner_2d))
+    #         corner_3d = extract_3d_points(path_lidar)
+    #         print("선택된 3D 좌표: ",corner_3d)
+    #         # print("선택된 3d 크기: ", var.s)
+    #         proj = calibrate(corner_2d, corner_3d)
+    #         # print("rotation matrix: ", rot)
+    #         # print("---------------projection matrix{}: ".format(i),proj)
+    #         print("---------------projection matrix: ",proj)
+    #         a = projection(proj, cam2pix, path_lidar, path_image)
+    #         print(a)
+    #         # 동준아 너가 원하는 경로로 지정하고 저장하면 될듯해
+    #         np.save("urp_calib_proj/projection_matrix{}".format(i), proj)
+    #     except:
+    #         pass
     
     # for i in range(50):
     #     path_lidar = "camera_LiDAR_calibration/calib_checker/lidar/02/lidar_{}.pcd".format(i)
